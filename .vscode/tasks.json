@@ -5,11 +5,16 @@
             "label": "C/C++: g++.exe build active file",
             "command": "C:\\msys64\\mingw64\\bin\\g++.exe",
             "args": [
-                "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
+                
+                "${fileDirname}/main.cpp",
+                "${fileDirname}/ConcatStringList.cpp",
+                "-I",
+                "-std=c++11",
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                // "g++ -o main main.cpp ConcatStringList.cpp -I . -std=c++11"
             ],
             "options": {
                 "cwd": "${fileDirname}"
