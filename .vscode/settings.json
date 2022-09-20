@@ -1,0 +1,6 @@
+{
+    "code-runner.executorMap": {
+        "c": "cd $dir && gcc $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "cpp": "g++ -o main main.cpp ConcatStringList.cpp -I . -std=c++11 && $dir$fileNameWithoutExt",
+    }
+}
