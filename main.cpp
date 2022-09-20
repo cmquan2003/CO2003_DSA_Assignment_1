@@ -72,9 +72,11 @@ void tc3() {
 }
 
 int main() {
+    cout << "---Testing tc1():\n";
     tc1();
+    cout << "---Testing tc2():\n";
     tc2();
-    cout << "Success\n";
+    cout << "---Testing tc3():\n";
     tc3();
     return 0;
 }

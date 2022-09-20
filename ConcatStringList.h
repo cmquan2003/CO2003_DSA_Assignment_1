@@ -48,23 +48,29 @@ public:
     class ReferencesList {
         // TODO: may provide some attributes
     public:
-        RefNode* head_ref;
+        RefNode* head;
+        RefNode* tail;
         int count_ref_node;
     public:
         int size() const;
         int refCountAt(int index) const;
         std::string refCountsString() const;
+        RefNode * addNode(CharALNode *&); // add node at begining of list
+        void swapNode(RefNode *); // swap current node with the node right behind
+        void updateRefList(CharALNode *&);
     };
 
     class DeleteStringList {
         // TODO: may provide some attributes
     public:
-        DelNode* head_del;
-        DelNode* tail_del;
+        DelNode* head;
+        DelNode* tail;
         int count_del_node;
     public:
         int size() const;
         std::string totalRefCountsString() const;
+        void addNode(DelNode *);
+        void updateDelList();
     };
 
     class CharALNode {
