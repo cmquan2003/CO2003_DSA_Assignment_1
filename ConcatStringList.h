@@ -21,17 +21,17 @@ public:
 
 // Declare attributes and methods for ConcatStringList
 private:
-    CharALNode* head;
+    CharALNode* head; // Free memory of all Nodes in Concat->Destructor
     CharALNode* tail;
     int count_node;
     int count_char;
 
-    void addNode(const char *);
-    void addNode(string);
+    ConcatStringList();
+    void appendNode(string);
+    void appendNode(const char *);
 
 public:
-    ConcatStringList(const char *);
-    ConcatStringList();
+    ConcatStringList(const char * s);
     int length() const;
     char get(int index) const;
     int indexOf(char c) const;
@@ -41,7 +41,7 @@ public:
     ConcatStringList reverse() const;
     ~ConcatStringList();
 // End ConcatStringList's member declaration
-
+int getNode() {return this->count_node;}
 
 // Declare attributes and methods for ReferencesList, DeleteStringList and all Node structures
 public:
@@ -51,13 +51,14 @@ public:
         RefNode* head;
         RefNode* tail;
         int count_ref_node;
+
+        RefNode * addNode(CharALNode *&); // add node at begining of list
+        void swapNode(RefNode *); // swap current node with the node right behind
+        void updateRefList(CharALNode *);
     public:
         int size() const;
         int refCountAt(int index) const;
         std::string refCountsString() const;
-        RefNode * addNode(CharALNode *&); // add node at begining of list
-        void swapNode(RefNode *); // swap current node with the node right behind
-        void updateRefList(CharALNode *&);
     };
 
     class DeleteStringList {
@@ -66,30 +67,32 @@ public:
         DelNode* head;
         DelNode* tail;
         int count_del_node;
+
+        void addNode(DelNode *);
+        void updateDelList();
     public:
         int size() const;
         std::string totalRefCountsString() const;
-        void addNode(DelNode *);
-        void updateDelList();
     };
 
     class CharALNode {
     public:
-        char* CharArrayList;
-        CharALNode* next;
+        char *CharArrayList; // Free memory of CharArrayList in CharALNode->Destructor
         int length;
+        CharALNode *next;
 
     public:
         CharALNode(const char *);
         CharALNode(string);
+        CharALNode(const CharALNode &);
         ~CharALNode();
     };
 
     class RefNode {
     public:
-        CharALNode* data_ref;
-        int num_of_ref;
-        RefNode* next_ref_node;
+        CharALNode *data;
+        int refCount;
+        RefNode *next;
     public:
         RefNode();
         RefNode(CharALNode *, int, RefNode *);
@@ -97,12 +100,14 @@ public:
 
     class DelNode {
     public:
-        RefNode* head_del_concatlist;
-        RefNode* tail_del_concatlist;
-        DelNode* next_del_node;
+        CharALNode *head_deleted;
+        CharALNode *tail_deleted;
+        int *refCountHead;
+        int *refCountTail;
+        DelNode *next;
     public:
         DelNode();
-        DelNode(RefNode *, RefNode *, DelNode *);
+        DelNode(CharALNode *, CharALNode *, int *, int *, DelNode *);
     };
 };
 
