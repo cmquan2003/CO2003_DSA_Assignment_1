@@ -25,6 +25,7 @@ private:
     CharALNode* tail;
     int count_node;
     int count_char;
+    bool checkConcat;
 
     ConcatStringList();
     void appendNode(string);
@@ -60,7 +61,7 @@ public:
         void mergeSort(RefNode *&);
         void sort();
         // after deleting a ConcatStringList
-        void reduceRef(CharALNode *, CharALNode *, int *&, int *&);
+        void reduceRef(CharALNode *&, CharALNode *&, int *&, int *&);
         void recheckRef();
     public:
         int size() const;
@@ -76,7 +77,7 @@ public:
         int count_del_node;
 
         DeleteStringList();
-        void appendNode(CharALNode *, CharALNode *, int *, int *);
+        void appendNode(CharALNode *, CharALNode *, int *, int *, bool);
         void updateDel();
     public:
         int size() const;
@@ -112,10 +113,11 @@ public:
         CharALNode *tail_deleted;
         int *refCountHead;
         int *refCountTail;
+        bool checkConcat;
         DelNode *next;
     public:
         DelNode();
-        DelNode(CharALNode *, CharALNode *, int *, int *, DelNode *);
+        DelNode(CharALNode *, CharALNode *, int *, int *, bool, DelNode *);
     };
 };
 

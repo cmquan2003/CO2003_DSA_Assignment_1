@@ -40,13 +40,13 @@ ConcatStringList::RefNode::RefNode(CharALNode *data, int refCount, RefNode *next
         : data(data), refCount(refCount), next(next) {}
 
 // Implementation of DelNode
-ConcatStringList::DelNode::DelNode() : head_deleted(NULL), tail_deleted(NULL), refCountHead(NULL), refCountTail(NULL), next(NULL) {}
-ConcatStringList::DelNode::DelNode(CharALNode *head_deleted, CharALNode *tail_deleted, int *refCountHead, int *refCountTail, DelNode *next)
-        : head_deleted(head_deleted), tail_deleted(tail_deleted), refCountHead(refCountHead), refCountTail(refCountTail), next(next) {}
+ConcatStringList::DelNode::DelNode() : head_deleted(NULL), tail_deleted(NULL), refCountHead(NULL), refCountTail(NULL), checkConcat(false), next(NULL) {}
+ConcatStringList::DelNode::DelNode(CharALNode *head_deleted, CharALNode *tail_deleted, int *refCountHead, int *refCountTail, bool checkConcat, DelNode *next)
+        : head_deleted(head_deleted), tail_deleted(tail_deleted), refCountHead(refCountHead), refCountTail(refCountTail), checkConcat(checkConcat), next(next) {}
 
 // Implementation of class ConcatStringList
 // 3.2.1
-ConcatStringList::ConcatStringList(const char * s) : count_node(1)
+ConcatStringList::ConcatStringList(const char * s) : count_node(1), checkConcat(false)
 {
     // Create 1 Node with the CharArrayList <-- s
     ConcatStringList::CharALNode *pNew = new ConcatStringList::CharALNode(s);
@@ -57,7 +57,7 @@ ConcatStringList::ConcatStringList(const char * s) : count_node(1)
     refList.insertNode(head, tail);
 }
 // Private Stuff =))
-ConcatStringList::ConcatStringList() : head(NULL), tail(NULL), count_node(0), count_char(0) {}
+ConcatStringList::ConcatStringList() : head(NULL), tail(NULL), count_node(0), count_char(0), checkConcat(false) {}
 void ConcatStringList::appendNode(string s)
 {
     ConcatStringList::CharALNode *pNew = new ConcatStringList::CharALNode(s);
@@ -138,6 +138,7 @@ ConcatStringList ConcatStringList::concat(const ConcatStringList & otherS) const
     res_S.tail = otherS.tail;
     res_S.count_node = this->count_node + otherS.count_node;
     res_S.count_char = this->count_char + otherS.count_char;
+    res_S.checkConcat = true;
 
     refList.updateConcat(res_S.head, res_S.tail);
     return res_S;
@@ -237,7 +238,7 @@ ConcatStringList::~ConcatStringList()
     if (count_node==0) return;
     int *ref1, *ref2;
     refList.reduceRef(head, tail, ref1, ref2);
-    delStrList.appendNode(head, tail, ref1, ref2);
+    delStrList.appendNode(head, tail, ref1, ref2, this->checkConcat);
     delStrList.updateDel();// Noi xoa cac DelNodes
     refList.recheckRef();// Noi xoa moi RefNodes khi moi refCounts = 0
 }
@@ -385,7 +386,7 @@ ConcatStringList::RefNode *ConcatStringList::ReferencesList::mergeList(RefNode *
 
     return res;
 }
-void ConcatStringList::ReferencesList::reduceRef(CharALNode *char_node_1, CharALNode *char_node_2, int *& ref1, int *& ref2)
+void ConcatStringList::ReferencesList::reduceRef(CharALNode *&char_node_1, CharALNode *&char_node_2, int *& ref1, int *& ref2)
 {
     ConcatStringList::RefNode *p = this->head;
     while (p != NULL) {
@@ -449,9 +450,9 @@ std::string ConcatStringList::ReferencesList::refCountsString() const
 }
 // Implementation of class DeleteStringList
 ConcatStringList::DeleteStringList::DeleteStringList() : head(NULL), tail(NULL), count_del_node(0) {}
-void ConcatStringList::DeleteStringList::appendNode(CharALNode *char_node_1, CharALNode *char_node_2, int *refCountHead, int *refCountTail)
+void ConcatStringList::DeleteStringList::appendNode(CharALNode *char_node_1, CharALNode *char_node_2, int *refCountHead, int *refCountTail, bool checkConcat)
 {
-    ConcatStringList::DelNode *pNew = new ConcatStringList::DelNode(char_node_1, char_node_2, refCountHead, refCountTail, NULL);
+    ConcatStringList::DelNode *pNew = new ConcatStringList::DelNode(char_node_1, char_node_2, refCountHead, refCountTail, checkConcat, NULL);
     if (count_del_node == 0) {
         head = pNew;
         tail = pNew;
@@ -466,24 +467,31 @@ void ConcatStringList::DeleteStringList::updateDel()
 {
     ConcatStringList::DelNode *p = head;
     while (p != NULL) {
-        if (*p->refCountHead + *p->refCountTail == 0) {
-            //xoa cac node o giua head va tail
-            ConcatStringList::CharALNode *p_char = p->head_deleted->next;
-            while (p_char != NULL && p_char != p->tail_deleted) {
-                ConcatStringList::CharALNode *p_char_next = p_char->next;
-                delete p_char;
-                p_char = p_char_next;
+        if (*(p->refCountHead) + *(p->refCountTail) == 0) {
+            //xoa cac node o giua head va tail voi dieu kien list ko phai do concat
+            if (p->checkConcat == false) {
+                ConcatStringList::CharALNode *p_char = p->head_deleted->next;
+                while (p_char != p->tail_deleted->next && p_char != p->tail_deleted) {
+                    ConcatStringList::CharALNode *p_char_next = p_char->next;
+                    delete p_char;
+                    p_char = p_char_next;
+                }
+                p->head_deleted->next = NULL;
+                p->tail_deleted->next = NULL;
             }
             //xoa DelNode hien tai (p) ra khoi DeleteStringList
-            if (count_del_node==1) {
+            if (count_del_node == 1) {
                 delete head;
                 head = NULL;
                 tail = NULL;
+                count_del_node = 0;
+                return;
             }
             else if (p == head) {
                 ConcatStringList::DelNode *tmp = head->next;
                 delete head;
                 head = tmp;
+                p = head;
             }
             else {
                 ConcatStringList::DelNode *pre = head;
@@ -491,10 +499,11 @@ void ConcatStringList::DeleteStringList::updateDel()
                 pre->next = p->next;
                 if (p == tail) tail = pre;
                 delete p;
+                p = pre->next;
             }
             count_del_node--;
-            break;
         }
+        else p = p->next;
     }
 }
 // 3.3.4
