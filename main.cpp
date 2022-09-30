@@ -53,82 +53,100 @@ void tc3() {
     cout << ConcatStringList::refList.refCountsString() << endl;
     cout << ConcatStringList::delStrList.totalRefCountsString() << endl;
 
-    cout << "---After deleting s3---" << endl;
-    delete s3;
-    cout << ConcatStringList::refList.refCountsString() << endl;
-    cout << ConcatStringList::delStrList.totalRefCountsString() << endl;
+    // cout << "---After deleting s3---" << endl;
+    // delete s3;
+    // cout << ConcatStringList::refList.refCountsString() << endl;
+    // cout << ConcatStringList::delStrList.totalRefCountsString() << endl;
 
-    cout << "---After deleting s2---" << endl;
-    delete s2;
-    cout << ConcatStringList::refList.refCountsString() << endl;
-    cout << ConcatStringList::delStrList.totalRefCountsString() << endl;
+    // cout << "---After deleting s2---" << endl;
+    // delete s2;
+    // cout << ConcatStringList::refList.refCountsString() << endl;
+    // cout << ConcatStringList::delStrList.totalRefCountsString() << endl;
 }
-
-void tc4() {
-    // Test subString
-    ConcatStringList s1("Hello,");
-    ConcatStringList s2("_this_is");
-    ConcatStringList s3("_an_assignment");
-    ConcatStringList s4("_for_CSE_students");
-    ConcatStringList s5 = s1.concat(s2);
-    ConcatStringList s6 = s5.subString(0, s5.length());
-    ConcatStringList s7 = s3.concat(s4);
-    ConcatStringList s8 = s7.subString(0, s7.length());
-    ConcatStringList s9 = s6.concat(s8);
-    ConcatStringList s10 = s9.subString(5, 30);
-    ConcatStringList s11 = s9.reverse();
-    cout << s1.toString() << " " << s1.getNode() << endl;
-    cout << s2.toString() << " " << s2.getNode() << endl;
-    cout << s3.toString() << " " << s3.getNode() << endl;
-    cout << s4.toString() << " " << s4.getNode() << endl;
-    cout << s5.toString() << " " << s5.getNode() << endl;
-    cout << s6.toString() << " " << s6.getNode() << endl;
-    cout << s7.toString() << " " << s7.getNode() << endl;
-    cout << s8.toString() << " " << s8.getNode() << endl;
-    cout << s9.toString() << " " << s9.getNode() << endl;
-    cout << s10.toString() << " " << s10.getNode() << " " << s10.length() << endl;
-    cout << s11.toString() << " " << s11.getNode() << " " << s11.length() << endl;
-}
-void tc5() {
-    // Test reverse
-    ConcatStringList s1("Hello,");
-    ConcatStringList s2("_this_is");
-    ConcatStringList s3("_an_assignment");
-    ConcatStringList s4("_for_CSE_students");
-    ConcatStringList s9 = s3.concat(s4);
-    ConcatStringList s10 = s9.reverse();
-    ConcatStringList s5 = s1.reverse();
-    ConcatStringList s6 = s2.reverse();
-    ConcatStringList s7 = s3.reverse();
-    ConcatStringList s8 = s4.reverse();
-    cout << s1.toString() << " " << s1.getNode() << endl;
-    cout << s2.toString() << " " << s2.getNode() << endl;
-    cout << s3.toString() << " " << s3.getNode() << endl;
-    cout << s4.toString() << " " << s4.getNode() << endl;
-    cout << s5.toString() << " " << s5.getNode() << endl;
-    cout << s6.toString() << " " << s6.getNode() << endl;
-    cout << s7.toString() << " " << s7.getNode() << endl;
-    cout << s8.toString() << " " << s8.getNode() << endl;
-    cout << s9.toString() << " " << s9.getNode() << endl;
-    cout << s10.toString() << " " << s10.getNode() << endl;
-    // ConcatStringList s8 = s4.reverse().concat(s5).reverse().reverse().reverse();//"tnemngissa_na_si_siht_,olleHHello,_this_is"
-    // cout << "s8: " << s8.toString() << endl;
-    // ConcatStringList s9 = s1.reverse();
-    // cout << "s9: " << s9.toString() << endl;
-    // ConcatStringList s10 = s4.concat(s1);
-    // cout << "s10: " << s10.toString() << endl;// Destructor have problem for s10!!
-}
+// void tc4() {
+//     // Test subString
+//     ConcatStringList s1("Hello,");
+//     ConcatStringList s2("_this_is");
+//     ConcatStringList s3("_an_assignment");
+//     ConcatStringList s4("_for_CSE_students");
+//     ConcatStringList s5 = s1.concat(s2);
+//     ConcatStringList s6 = s5.subString(0, s5.length());
+//     ConcatStringList s7 = s3.concat(s4);
+//     ConcatStringList s8 = s7.subString(0, s7.length());
+//     ConcatStringList s9 = s6.concat(s8);
+//     ConcatStringList s10 = s9.subString(5, 30);
+//     ConcatStringList s11 = s9.reverse();
+//     cout << s1.toString() << " " << s1.getNode() << endl;
+//     cout << s2.toString() << " " << s2.getNode() << endl;
+//     cout << s3.toString() << " " << s3.getNode() << endl;
+//     cout << s4.toString() << " " << s4.getNode() << endl;
+//     cout << s5.toString() << " " << s5.getNode() << endl;
+//     cout << s6.toString() << " " << s6.getNode() << endl;
+//     cout << s7.toString() << " " << s7.getNode() << endl;
+//     cout << s8.toString() << " " << s8.getNode() << endl;
+//     cout << s9.toString() << " " << s9.getNode() << endl;
+//     cout << s10.toString() << " " << s10.getNode() << " " << s10.length() << endl;
+//     cout << s11.toString() << " " << s11.getNode() << " " << s11.length() << endl;
+// }
+// void tc5() {
+//     // Test reverse
+//     ConcatStringList s1("Hello,");
+//     ConcatStringList s2("_this_is");
+//     ConcatStringList s3("_an_assignment");
+//     ConcatStringList s4("_for_CSE_students");
+//     ConcatStringList s9 = s3.concat(s4);
+//     ConcatStringList s10 = s9.reverse();
+//     ConcatStringList s5 = s1.reverse();
+//     ConcatStringList s6 = s2.reverse();
+//     ConcatStringList s7 = s3.reverse();
+//     ConcatStringList s8 = s4.reverse();
+//     cout << s1.toString() << " " << s1.getNode() << endl;
+//     cout << s2.toString() << " " << s2.getNode() << endl;
+//     cout << s3.toString() << " " << s3.getNode() << endl;
+//     cout << s4.toString() << " " << s4.getNode() << endl;
+//     cout << s5.toString() << " " << s5.getNode() << endl;
+//     cout << s6.toString() << " " << s6.getNode() << endl;
+//     cout << s7.toString() << " " << s7.getNode() << endl;
+//     cout << s8.toString() << " " << s8.getNode() << endl;
+//     cout << s9.toString() << " " << s9.getNode() << endl;
+//     cout << s10.toString() << " " << s10.getNode() << endl;
+//     // ConcatStringList s8 = s4.reverse().concat(s5).reverse().reverse().reverse();//"tnemngissa_na_si_siht_,olleHHello,_this_is"
+//     // cout << "s8: " << s8.toString() << endl;
+//     // ConcatStringList s9 = s1.reverse();
+//     // cout << "s9: " << s9.toString() << endl;
+//     // ConcatStringList s10 = s4.concat(s1);
+//     // cout << "s10: " << s10.toString() << endl;// Destructor have problem for s10!!
+// }
+// void tc6() {
+//     ConcatStringList * s1 = new ConcatStringList("Hello,");
+//     ConcatStringList * s2 = new ConcatStringList("_this_is");
+//     // ConcatStringList s6 = s1->concat(*s2);
+//     // ConcatStringList * s7 = new ConcatStringList(s6);
+//     ConcatStringList * s3 = new ConcatStringList(s1->concat(*s2));
+//     ConcatStringList s4 = s3->subString(1,10);
+//     ConcatStringList * s5 = new ConcatStringList("_an_assignment");
+//     ConcatStringList * s6 = new ConcatStringList(s4.concat(*s5));
+//     cout << ConcatStringList::refList.refCountsString() << endl;
+//     cout << ConcatStringList::delStrList.totalRefCountsString() << endl;
+//     delete s1;
+//     delete s2;
+//     // delete s3;
+//     delete s5;
+//     // delete s6;
+// }
 int main() {
     // cout << "---Testing tc1():\n";
     // tc1();
     // cout << "---Testing tc2():\n";
     // tc2();
-    // cout << "---Testing tc3():\n";
-    // tc3();
+    cout << "---Testing tc3():\n";
+    tc3();
     // cout << "---Testing tc4():\n";
     // tc4();
-    cout << "---Testing tc5():\n";
-    tc5();
+    // cout << "---Testing tc5():\n";
+    // tc5();
+    // cout << "---Testing tc6():\n";
+    // tc6();
     cout << "Testing succeeded";
     return 0;
 }

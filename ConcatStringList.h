@@ -21,7 +21,7 @@ public:
 
 // Declare attributes and methods for ConcatStringList
 private:
-    CharALNode* head; // Free memory of all Nodes in Concat->Destructor
+    CharALNode* head; // Free memory of all CharALNodes in Concat->Destructor
     CharALNode* tail;
     int count_node;
     int count_char;
@@ -41,20 +41,27 @@ public:
     ConcatStringList reverse() const;
     ~ConcatStringList();
 // End ConcatStringList's member declaration
-int getNode() {return this->count_node;}
 
 // Declare attributes and methods for ReferencesList, DeleteStringList and all Node structures
 public:
     class ReferencesList {
         // TODO: may provide some attributes
     public:
-        RefNode* head;
+        RefNode* head; // Free memory of all RefNodes in Concat->Destructor at appropriate moment
         RefNode* tail;
         int count_ref_node;
 
-        RefNode * addNode(CharALNode *&); // add node at begining of list
-        void swapNode(RefNode *); // swap current node with the node right behind
-        void updateRefList(CharALNode *);
+        ReferencesList();
+        // after creating a ConcatStringList
+        void insertNode(CharALNode * char_node_1, CharALNode * char_node_2=NULL);
+        void updateConcat(CharALNode *, CharALNode *);
+        void split(RefNode *, RefNode *&, RefNode *&);
+        RefNode *mergeList(RefNode *&, RefNode *&);
+        void mergeSort(RefNode *&);
+        void sort();
+        // after deleting a ConcatStringList
+        void reduceRef(CharALNode *, CharALNode *, int *&, int *&);
+        void recheckRef();
     public:
         int size() const;
         int refCountAt(int index) const;
@@ -64,12 +71,13 @@ public:
     class DeleteStringList {
         // TODO: may provide some attributes
     public:
-        DelNode* head;
+        DelNode* head; // Free memory of all DelNodes in Concat->Destructor at appropriate moment
         DelNode* tail;
         int count_del_node;
 
-        void addNode(DelNode *);
-        void updateDelList();
+        DeleteStringList();
+        void appendNode(CharALNode *, CharALNode *, int *, int *);
+        void updateDel();
     public:
         int size() const;
         std::string totalRefCountsString() const;

@@ -53,6 +53,8 @@ ConcatStringList::ConcatStringList(const char * s) : count_node(1)
     head = pNew;
     tail = pNew;
     count_char = pNew->length;
+
+    refList.insertNode(head, tail);
 }
 // Private Stuff =))
 ConcatStringList::ConcatStringList() : head(NULL), tail(NULL), count_node(0), count_char(0) {}
@@ -137,6 +139,7 @@ ConcatStringList ConcatStringList::concat(const ConcatStringList & otherS) const
     res_S.count_node = this->count_node + otherS.count_node;
     res_S.count_char = this->count_char + otherS.count_char;
 
+    refList.updateConcat(res_S.head, res_S.tail);
     return res_S;
 }
 // 3.2.7
@@ -185,6 +188,9 @@ ConcatStringList ConcatStringList::subString(int from, int to) const
         }
     }
 
+    refList.insertNode(res_S.head, res_S.tail);
+    if (res_S.head != res_S.tail)
+        refList.insertNode(res_S.tail);
     return res_S;
 }
 // 3.2.8
@@ -220,21 +226,196 @@ ConcatStringList ConcatStringList::reverse() const
     }
     res_S.head = p_prev;
     
+    refList.insertNode(res_S.head, res_S.tail);
+    if (res_S.head != res_S.tail)
+        refList.insertNode(res_S.tail);
     return res_S;
 }
 // 3.2.9
 ConcatStringList::~ConcatStringList()
 {
     if (count_node==0) return;
-    ConcatStringList::CharALNode *p;
-    while (head != tail->next) {
-        p = head;
-        head = head->next;
-        delete p;
-    }
+    int *ref1, *ref2;
+    refList.reduceRef(head, tail, ref1, ref2);
+    delStrList.appendNode(head, tail, ref1, ref2);
+    delStrList.updateDel();// Noi xoa cac DelNodes
+    refList.recheckRef();// Noi xoa moi RefNodes khi moi refCounts = 0
 }
 
 // Implementation of class ReferencesList
+ConcatStringList::ReferencesList::ReferencesList() : head(NULL), tail(NULL), count_ref_node(0) {}
+void ConcatStringList::ReferencesList::insertNode(CharALNode * char_node_1, CharALNode * char_node_2)
+{
+    ConcatStringList::RefNode *pNew = new ConcatStringList::RefNode(char_node_1, 1, NULL);
+    if (char_node_2 != NULL && char_node_1 == char_node_2) pNew->refCount++;
+    if (count_ref_node == 0) {
+        head = pNew;
+        tail = pNew;
+    }
+    else {
+        ConcatStringList::RefNode *p_curr = head;
+        int idx = 0;
+        while (p_curr != NULL && pNew->refCount > p_curr->refCount && p_curr->refCount > 0) {
+            idx++;
+            p_curr = p_curr->next;
+        }// idx is where we need to insert pNew
+        if (idx == 0) {
+            pNew->next = head;
+            head = pNew;
+        }
+        else if (idx == count_ref_node) {
+            tail->next = pNew;
+            tail = pNew;
+        }
+        else {
+            p_curr = head;
+            for (int i = 0; i < idx-1; i++) p_curr = p_curr->next; // p at index-1
+            pNew->next = p_curr->next;
+            p_curr->next = pNew;
+        }
+    }
+    count_ref_node++;
+}
+void ConcatStringList::ReferencesList::updateConcat(CharALNode * char_node_1, CharALNode * char_node_2)
+{
+    ConcatStringList::RefNode *p = this->head;
+    while (p != NULL) {
+        if (p->data == char_node_1) {
+            p->refCount++;
+        }
+        if (p->data == char_node_2) {
+            p->refCount++;
+        }
+        p = p->next;
+    }
+    this->sort();
+}
+void ConcatStringList::ReferencesList::sort()
+{
+    mergeSort(this->head);
+    this->tail = head;
+    for (int i = 0; i < count_ref_node-1; i++) this->tail = this->tail->next; // tail at count-1
+    // Sorting list completed
+
+    // Bring 0s to the end of the list
+    /*
+    0 -> 0 -> 32 -> ...
+              p
+         pre
+    */
+    ConcatStringList::RefNode *p = head;
+    while (p != NULL && p->refCount == 0) p = p->next;
+    if (p == head || p == NULL) return;
+    ConcatStringList::RefNode *pre = head;
+    while (pre->next != p) pre = pre->next;
+    pre->next = NULL;
+    tail->next = head;
+    head = p;
+    tail = pre;
+}
+void ConcatStringList::ReferencesList::mergeSort(RefNode *& head)
+{
+    if (head == NULL || head->next == NULL) return;
+
+    ConcatStringList::RefNode *a;
+    ConcatStringList::RefNode *b;
+
+    split(head, a, b);
+    mergeSort(a);
+    mergeSort(b);
+    head = mergeList(a, b);//head changed here
+}
+void ConcatStringList::ReferencesList::split(RefNode * head, RefNode *& a, RefNode *& b) {
+    // split the head list into 2 sub list a and b
+    ConcatStringList::RefNode *fast = head->next;
+    ConcatStringList::RefNode *slow = head;
+
+    while (fast != NULL) {
+        fast = fast->next;
+        if (fast != NULL) {
+            fast = fast->next;
+            slow = slow->next;
+        }
+    }
+
+    a = head;
+    b = slow->next;
+
+    slow->next = NULL;
+}
+ConcatStringList::RefNode *ConcatStringList::ReferencesList::mergeList(RefNode *& a, RefNode *& b)
+{
+    // merge 2 sorted list into 1 list
+    ConcatStringList::RefNode *res;
+
+    ConcatStringList::RefNode *a_ptr = a;
+    ConcatStringList::RefNode *b_ptr = b;
+    if (a->refCount < b->refCount) {
+        res = a_ptr;
+        a_ptr = a_ptr->next;
+    }
+    else {
+        res = b_ptr;
+        b_ptr = b_ptr->next;
+    }
+
+    ConcatStringList::RefNode *p = res;
+    while (a_ptr != nullptr && b_ptr != nullptr) {
+        if (a_ptr->refCount <= b_ptr->refCount) {
+            p->next = a_ptr;
+            a_ptr = a_ptr->next;
+            p = p->next;
+        }
+        else {
+            p->next = b_ptr;
+            b_ptr = b_ptr->next;
+            p = p->next;
+        }
+    }
+    while (a_ptr != nullptr) {
+        p->next = a_ptr;
+        a_ptr = a_ptr->next;
+        p = p->next;
+    }
+    while (b_ptr != nullptr) {
+        p->next = b_ptr;
+        b_ptr = b_ptr->next;
+        p = p->next;
+    }
+
+    return res;
+}
+void ConcatStringList::ReferencesList::reduceRef(CharALNode *char_node_1, CharALNode *char_node_2, int *& ref1, int *& ref2)
+{
+    ConcatStringList::RefNode *p = this->head;
+    while (p != NULL) {
+        if (p->data == char_node_1) {
+            p->refCount--;
+            ref1 = &(p->refCount);
+        }
+        if (p->data == char_node_2) {
+            p->refCount--;
+            ref2 = &(p->refCount);
+        }
+        p = p->next;
+    }
+    this->sort();
+}
+void ConcatStringList::ReferencesList::recheckRef()
+{
+    if (head == NULL || head->refCount != 0) return;
+    ConcatStringList::RefNode *p = head;
+    while (p != NULL) {
+        ConcatStringList::CharALNode *p_char = p->data;
+        delete p_char;
+        ConcatStringList::RefNode *p_ref_next = p->next;
+        delete p;
+        p = p_ref_next;
+    }
+    head = NULL;
+    tail = NULL;
+    count_ref_node = 0;
+}
 // 3.3.1
 int ConcatStringList::ReferencesList::size() const
 {
@@ -243,79 +424,79 @@ int ConcatStringList::ReferencesList::size() const
 // 3.3.2
 int ConcatStringList::ReferencesList::refCountAt(int index) const
 {
-    // if (index < 0 || index >= this->count_ref_node) throw out_of_range("Index of references list is invalid!");
-    // ConcatStringList::RefNode *p = this->head;
-    // int i = 0;
-    // while (p != NULL) {
-    //     if (i == index) return p->num_of_ref;
-    //     p = p->next_ref_node;
-    //     i++;
-    // }
+    if (index < 0 || index >= this->count_ref_node) throw out_of_range("Index of references list is invalid!");
+    ConcatStringList::RefNode *p = this->head;
+    int i = 0;
+    while (p != NULL) {
+        if (i == index) return p->refCount;
+        p = p->next;
+        i++;
+    }
     return -1;
 }
 // 3.3.3
 std::string ConcatStringList::ReferencesList::refCountsString() const
 {
     string res_string = "RefCounts[";
-    // ConcatStringList::RefNode *p = this->head;
-    // while (p != NULL) {
-    //     if (p != this->head) res_string += ',';
-    //     res_string += to_string(p->num_of_ref);
-    // }
-    // res_string += ']';
+    ConcatStringList::RefNode *p = this->head;
+    while (p != NULL) {
+        if (p != this->head) res_string += ',';
+        res_string += to_string(p->refCount);
+        p = p->next;
+    }
+    res_string += ']';
     return res_string;
 }
-ConcatStringList::RefNode * ConcatStringList::ReferencesList::addNode(CharALNode *& char_node)
-{
-    ConcatStringList::RefNode *pNew = new ConcatStringList::RefNode(char_node, 1, NULL);
-    // if (this->count_ref_node == 0) {
-    //     this->head = this->tail = pNew;
-    // }
-    // else {
-    //     pNew->next_ref_node = this->head;
-    //     this->head = pNew;
-    // }
-    // this->count_ref_node++;
-    return pNew;
-}
-void ConcatStringList::ReferencesList::swapNode(RefNode * ref_node)
-{
-    // if (this->head == ref_node) {// at least 2 node
-    //     ConcatStringList::RefNode *tmp = this->head->next_ref_node; // now we need to swap head with tmp
-    //     this->head->next_ref_node = tmp->next_ref_node;
-    //     tmp->next_ref_node = this->head;
-    //     this->head = tmp;
-    //     if (this->count_ref_node == 2) this->tail = this->head->next_ref_node;
-    // }
-    // else {// at least 3 node
-    //     ConcatStringList::RefNode *p = this->head;
-    //     while (p->next_ref_node != ref_node) {
-    //         p = p->next_ref_node;
-    //     }
-    //     ConcatStringList::RefNode *tmp = ref_node->next_ref_node;
-    //     ref_node->next_ref_node = tmp->next_ref_node;
-    //     p->next_ref_node = tmp;
-    //     tmp->next_ref_node = ref_node;
-    //     if (this->tail == tmp) this->tail = ref_node;
-    // }
-}
-void ConcatStringList::ReferencesList::updateRefList(CharALNode * char_node)
-{
-    // ConcatStringList::RefNode *p = this->head;
-    // while (p != NULL) {
-    //     if (p->data_ref == char_node) {
-    //         p->num_of_ref++;
-    //         break;
-    //     }
-    // }
-    // if (p == NULL) p = addNode(char_node);
-    // while (p->next_ref_node != NULL && p->next_ref_node->num_of_ref != 0 && p->num_of_ref > p->next_ref_node->num_of_ref) {
-    //     // swap Node
-    //     swapNode(p);
-    // }
-}
-
 // Implementation of class DeleteStringList
+ConcatStringList::DeleteStringList::DeleteStringList() : head(NULL), tail(NULL), count_del_node(0) {}
+void ConcatStringList::DeleteStringList::appendNode(CharALNode *char_node_1, CharALNode *char_node_2, int *refCountHead, int *refCountTail)
+{
+    ConcatStringList::DelNode *pNew = new ConcatStringList::DelNode(char_node_1, char_node_2, refCountHead, refCountTail, NULL);
+    if (count_del_node == 0) {
+        head = pNew;
+        tail = pNew;
+    }
+    else {
+        tail->next = pNew;
+        tail = pNew;
+    }
+    count_del_node++;
+}
+void ConcatStringList::DeleteStringList::updateDel()
+{
+    ConcatStringList::DelNode *p = head;
+    while (p != NULL) {
+        if (*p->refCountHead + *p->refCountTail == 0) {
+            //xoa cac node o giua head va tail
+            ConcatStringList::CharALNode *p_char = p->head_deleted->next;
+            while (p_char != NULL && p_char != p->tail_deleted) {
+                ConcatStringList::CharALNode *p_char_next = p_char->next;
+                delete p_char;
+                p_char = p_char_next;
+            }
+            //xoa DelNode hien tai (p) ra khoi DeleteStringList
+            if (count_del_node==1) {
+                delete head;
+                head = NULL;
+                tail = NULL;
+            }
+            else if (p == head) {
+                ConcatStringList::DelNode *tmp = head->next;
+                delete head;
+                head = tmp;
+            }
+            else {
+                ConcatStringList::DelNode *pre = head;
+                while (pre->next != p) pre = pre->next;
+                pre->next = p->next;
+                if (p == tail) tail = pre;
+                delete p;
+            }
+            count_del_node--;
+            break;
+        }
+    }
+}
 // 3.3.4
 int ConcatStringList::DeleteStringList::size() const
 {
@@ -325,14 +506,15 @@ int ConcatStringList::DeleteStringList::size() const
 std::string ConcatStringList::DeleteStringList::totalRefCountsString() const
 {
     string res_string = "TotalRefCounts[";
-    // int total_ref = 0;
-    // ConcatStringList::DelNode *p = this->head;
-    // while (p != NULL) {
-    //     if (p->head_del_concatlist == p->tail_del_concatlist) total_ref = p->head_del_concatlist->num_of_ref;
-    //     else total_ref = p->head_del_concatlist->num_of_ref + p->tail_del_concatlist->num_of_ref;
-    //     if (p != this->head) res_string += ',';
-    //     res_string += to_string(total_ref);
-    // }
+    int total_ref = 0;
+    ConcatStringList::DelNode *p = this->head;
+    while (p != NULL) {
+        if (p->head_deleted == p->tail_deleted) total_ref = *(p->refCountHead);
+        else total_ref = *(p->refCountHead) + *(p->refCountTail);
+        if (p != this->head) res_string += ',';
+        res_string += to_string(total_ref);
+        p = p->next;
+    }
     res_string += "]";
     return res_string;
 }
