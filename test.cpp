@@ -264,11 +264,9 @@ public:
 int main()
 {
     LinkedList list;
-    // int values[]   = {10, 15, 2,  6,  0,  7,  40,  8, 0};
-    // int index[]    = {0,  0,  1,  3,  2,  3,  5,   0, 1};
-    int values[] = {0,10};
-    int index[] = {0,0,0};
-    for (int idx = 0; idx < 2; idx++) {
+    int values[]   = {10, 15, 2,  6,  0,  7,  40,  8, 0};
+    int index[]    = {0,  0,  1,  3,  2,  3,  5,   0, 1};
+    for (int idx = 0; idx < 8; idx++) {
         list.add(index[idx], values[idx]);
     }
     cout << list.toString() << endl;//[8,0,15,2,0,7,10,40,6]
@@ -280,7 +278,7 @@ int main()
 }
 // g++ test.cpp -o test ; if ($?) { .\test }
 
-// // Test string and char*
+// Test string and char*
 // #include <bits/stdc++.h>
 // using namespace std;
 // int main() {
@@ -288,7 +286,7 @@ int main()
 //     string s(a);
 //     string sr(s.rbegin(), s.rend());
 //     cout << a << " " << s << " " << sr << endl;//ABCDEFGH ABCDEFGH HGFEDCBA
-//     cout << s.substr(4, 1111);//EFGH
+//     cout << s.substr(4, 1111) << endl;//EFGH
 // }
 
 // Copy elision

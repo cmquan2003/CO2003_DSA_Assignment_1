@@ -107,8 +107,9 @@ int ConcatStringList::indexOf(char c) const
         if (i == cnt + p->length) {
             cnt += p->length;
             p = p->next;
+            while (p != tail->next && p->length == 0) p = p->next;
         }
-        if (p != NULL && p->CharArrayList[i-cnt] == c) return i;
+        if (p != tail->next && p->CharArrayList[i-cnt] == c) return i;
     }
     return -1;
 }//O(count_char)
@@ -123,8 +124,9 @@ std::string ConcatStringList::toString() const
         if (i == cnt + p->length) {
             cnt += p->length;
             p = p->next;
+            while (p != tail->next && p->length == 0) p = p->next;
         }
-        res += p->CharArrayList[i-cnt];
+        if (p != tail->next) res += p->CharArrayList[i-cnt];
     }
     return res;
 }//O(count_char)
@@ -146,8 +148,8 @@ ConcatStringList ConcatStringList::concat(const ConcatStringList & otherS) const
 // 3.2.7
 ConcatStringList ConcatStringList::subString(int from, int to) const
 {
-    if (from < 0 || from > this->count_char-1) throw out_of_range("Index of string is invalid");
-    if (to   < 0 || to   > this->count_char)   throw out_of_range("Index of string is invalid");
+    if (from < 0 || from > this->count_char-1) throw out_of_range("Index of string is invalid!");
+    if (to   < 0 || to   > this->count_char)   throw out_of_range("Index of string is invalid!");
     if (from >= to) throw logic_error("Invalid range");
 
     ConcatStringList res_S;
@@ -155,9 +157,11 @@ ConcatStringList ConcatStringList::subString(int from, int to) const
     ConcatStringList::CharALNode *p = this->head;
     int cnt = 0;
     for (int i = 0; i <= from; i++) {
+        if (from==0 && p->length == 0) break;
         if (i == cnt + p->length) {
             cnt += p->length;
             p = p->next;
+            while (p != tail->next && p->length == 0) p = p->next;
         }
     }
     // p is at Node that contain char at index "from"
